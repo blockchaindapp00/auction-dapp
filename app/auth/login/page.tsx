@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React, { useState } from 'react';
 import {
   Box,
@@ -12,14 +12,18 @@ import {
   Alert,
   AlertIcon,
   AlertTitle,
+  useToast,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
+import { authenticateUser } from '../auth'; 
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter(); // Next.js router hook
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const toast = useToast();
 
   // Simple validation
   const validateForm = () => {
@@ -35,13 +39,45 @@ const LoginForm = () => {
   };
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      setError(''); // Clear error if valid
-      // Handle the actual login logic here (e.g., API call)
-      console.log('Logging in:', { email, password });
-      router.push('/dashboard'); // Redirect to another page after login
+      setError('');
+      setLoading(true); // Set loading state
+      try {
+        const result = await authenticateUser({ email, password });
+        if (result.success) {
+          toast({
+            title: 'Login successful!',
+            description: 'You have been logged in successfully.',
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+          });
+          router.push('/dashboard');
+        } else {
+          setError(result.message);
+          toast({
+            title: 'Login failed',
+            description: result.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+        }
+      } catch (err) {
+        console.error('Login error:', err);
+        setError('An unexpected error occurred. Please try again.');
+        toast({
+          title: 'Error',
+          description: 'An unexpected error occurred. Please try again.',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      } finally {
+        setLoading(false); // Reset loading state
+      }
     }
   };
 
@@ -63,7 +99,7 @@ const LoginForm = () => {
         left="0"
         right="0"
         bottom="0"
-        zIndex={-1} // Place it behind the form box
+        zIndex={-1}
       >
         {/* Gradient Background Box */}
       </Box>
@@ -76,7 +112,7 @@ const LoginForm = () => {
         boxShadow="lg"
         borderRadius="md"
         border="white"
-        bg="grey.900"
+        bg="gray.900"
         position="relative"
         zIndex={1}
       >
@@ -92,12 +128,12 @@ const LoginForm = () => {
         <form onSubmit={handleSubmit}>
           <Stack spacing={4}>
             {/* Error message */}
-            {error && (
+            {/* {error && (
               <Alert status="error">
                 <AlertIcon />
                 <AlertTitle>{error}</AlertTitle>
               </Alert>
-            )}
+            )} */}
 
             {/* Email Field */}
             <FormControl isRequired>
@@ -122,7 +158,7 @@ const LoginForm = () => {
             </FormControl>
 
             {/* Submit Button */}
-            <Button type="submit" colorScheme="blue" size="lg" width="full">
+            <Button type="submit" colorScheme="blue" size="lg" width="full" isLoading={loading}>
               Login
             </Button>
 
