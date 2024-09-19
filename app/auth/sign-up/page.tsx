@@ -12,8 +12,34 @@ import {
   Alert,
   AlertIcon,
   AlertTitle,
+  Spinner,
+  useDisclosure,
+  useToast
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
+import { registerUser } from '../auth';
+
+// Overlay Component
+const LoadingOverlay: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
+  return (
+    isOpen ? (
+      <Box
+        position="fixed"
+        top="0"
+        left="0"
+        right="0"
+        bottom="0"
+        backgroundColor="rgba(0, 0, 0, 0.6)"
+        zIndex={999}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Spinner size="xl" color="white" />
+      </Box>
+    ) : null
+  );
+};
 
 const SignupForm = () => {
   const [username, setUsername] = useState('');
@@ -21,34 +47,78 @@ const SignupForm = () => {
   const [password, setPassword] = useState('');
   const [address, setAddress] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const router = useRouter(); // Next.js router hook
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
   // Simple validation
   const validateForm = () => {
     if (!username || !email || !password || !address || !confirmPassword) {
-      setError('Please fill out all fields');
+      toast({
+        title: 'Error',
+        description: 'Please fill out all fields',
+        status: 'error',
+        duration: 5000,
+        isClosable: true
+      });
       return false;
     }
     if (!/\S+@\S+\.\S+/.test(email)) {
-      setError('Please enter a valid email address');
+      toast({
+        title: 'Error',
+        description: 'Please enter a valid email address',
+        status: 'error',
+        duration: 5000,
+        isClosable: true
+      });
       return false;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      toast({
+        title: 'Error',
+        description: 'Passwords do not match',
+        status: 'error',
+        duration: 5000,
+        isClosable: true
+      });
       return false;
     }
     return true;
   };
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      setError(''); // Clear error if valid
-      // Handle the actual signup logic here (e.g., API call)
-      console.log('Signing up:', { username, email, password, address });
-      router.push('/login'); // Redirect to login page after signup
+      setLoading(true);
+      onOpen();
+
+      try {
+        const result = await registerUser({ email, username, password, public_address: address });
+        toast({
+          title: 'Success',
+          description: result.message,
+          status: 'success',
+          duration: 5000,
+          isClosable: true
+        });
+        setTimeout(() => {
+          onClose();
+          router.push('/auth/login');
+        }, 2000);
+      } catch (err: any) {
+        toast({
+          title: 'Error',
+          description: err.message || 'Registration failed',
+          status: 'error',
+          duration: 5000,
+          isClosable: true
+        });
+        onClose();
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -63,6 +133,9 @@ const SignupForm = () => {
       justifyContent="center"
       position="relative"
     >
+      {/* Loading Overlay */}
+      <LoadingOverlay isOpen={isOpen} />
+
       {/* Background Box */}
       <Box
         position="absolute"
@@ -70,7 +143,7 @@ const SignupForm = () => {
         left="0"
         right="0"
         bottom="0"
-        zIndex={-1} // Place it behind the form box
+        zIndex={-1}
       >
         {/* Gradient Background Box */}
       </Box>
@@ -86,6 +159,7 @@ const SignupForm = () => {
         borderColor="white"
         borderWidth="1px"
         borderStyle="solid"
+
         position="relative"
         zIndex={1}
       >
@@ -100,14 +174,6 @@ const SignupForm = () => {
 
         <form onSubmit={handleSubmit}>
           <Stack spacing={4}>
-            {/* Error message */}
-            {error && (
-              <Alert status="error">
-                <AlertIcon />
-                <AlertTitle>{error}</AlertTitle>
-              </Alert>
-            )}
-
             {/* Username Field */}
             <FormControl isRequired>
               <FormLabel>Username</FormLabel>
@@ -164,7 +230,7 @@ const SignupForm = () => {
             </FormControl>
 
             {/* Submit Button */}
-            <Button type="submit" colorScheme="blue" size="lg" width="full">
+            <Button type="submit" colorScheme="blue" size="lg" width="full" isLoading={loading}>
               Sign Up
             </Button>
 
