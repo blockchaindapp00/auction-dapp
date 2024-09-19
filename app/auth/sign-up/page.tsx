@@ -82,7 +82,10 @@ const SignupForm = () => {
         p={8}
         boxShadow="lg"
         borderRadius="md"
-        bg="grey.900"
+        bg="gray.900"
+        borderColor="white"
+        borderWidth="1px"
+        borderStyle="solid"
         position="relative"
         zIndex={1}
       >
