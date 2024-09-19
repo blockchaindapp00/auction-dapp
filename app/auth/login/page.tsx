@@ -111,16 +111,22 @@ const LoginForm = () => {
         p={8}
         boxShadow="lg"
         borderRadius="md"
-        border="white"
+        borderColor="white"
+        borderWidth="1px"
+        borderStyle="solid"
         bg="gray.900"
         position="relative"
         zIndex={1}
       >
-        <Heading as="h3" size="lg" textAlign="center" mb={6}
-          bgGradient='linear(to-l, #7928CA, #FF0080)'
-          bgClip='text'
-          fontSize='6xl'
-          fontWeight='extrabold'
+        <Heading
+          as="h3"
+          size="lg"
+          textAlign="center"
+          mb={6}
+          bgGradient="linear(to-l, #7928CA, #FF0080)"
+          bgClip="text"
+          fontSize="4xl"
+          fontWeight="extrabold"
         >
           Login
         </Heading>
@@ -128,32 +134,42 @@ const LoginForm = () => {
         <form onSubmit={handleSubmit}>
           <Stack spacing={4}>
             {/* Error message */}
-            {/* {error && (
+            {error && (
               <Alert status="error">
                 <AlertIcon />
                 <AlertTitle>{error}</AlertTitle>
               </Alert>
-            )} */}
+            )}
 
             {/* Email Field */}
             <FormControl isRequired>
-              <FormLabel>Email</FormLabel>
+              <FormLabel color="white">Email</FormLabel>
               <Input
                 type="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                borderColor="black"
+                _focus={{ borderColor: 'black', boxShadow: '0 0 0 1px black' }}
+                _placeholder={{ color: 'black' }}
+                bg="white"
+                color="black"
               />
             </FormControl>
 
             {/* Password Field */}
             <FormControl isRequired>
-              <FormLabel>Password</FormLabel>
+              <FormLabel color="white">Password</FormLabel>
               <Input
                 type="password"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                borderColor="black"
+                _focus={{ borderColor: 'black', boxShadow: '0 0 0 1px black' }}
+                _placeholder={{ color: 'black' }}
+                bg="white"
+                color="black"
               />
             </FormControl>
 
@@ -162,8 +178,15 @@ const LoginForm = () => {
               Login
             </Button>
 
-            <Text textAlign="center" fontSize="sm">
-              Don't have an account? <Button variant="link" colorScheme="blue" onClick={() => router.push('/auth/sign-up')}>Sign up</Button>
+            <Text textAlign="center" fontSize="sm" color="white">
+              Don't have an account?{' '}
+              <Button
+                variant="link"
+                colorScheme="blue"
+                onClick={() => router.push('/auth/sign-up')}
+              >
+                Sign up
+              </Button>
             </Text>
           </Stack>
         </form>

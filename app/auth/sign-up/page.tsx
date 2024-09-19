@@ -156,6 +156,10 @@ const SignupForm = () => {
         boxShadow="lg"
         borderRadius="md"
         bg="gray.900"
+        borderColor="white"
+        borderWidth="1px"
+        borderStyle="solid"
+
         position="relative"
         zIndex={1}
       >
