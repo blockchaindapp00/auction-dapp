@@ -15,9 +15,14 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import { authenticateUser } from '../auth'; 
+import { authenticateUser, fetchCreatedItems, fetchOwnedItems } from '../auth'; 
+import { useSessionStore } from '@/utils/zustand/sessionStore';
 
 const LoginForm = () => {
+  const setUser = useSessionStore((state) => state.setUser);
+  const setOwnedItems = useSessionStore((state) => state.setOwnedItems);
+  const setCreatedItems = useSessionStore((state) => state.setCreatedItems);
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -43,10 +48,18 @@ const LoginForm = () => {
     e.preventDefault();
     if (validateForm()) {
       setError('');
-      setLoading(true); // Set loading state
+      setLoading(true); 
       try {
         const result = await authenticateUser({ email, password });
+
+
         if (result.success) {
+          setUser(result.data);
+          // const ownedItems = await fetchOwnedItems(result.data.username);
+          // setOwnedItems(ownedItems.ownedItems);
+          // const createdItems = await fetchCreatedItems(result.data.username);
+          // setCreatedItems(createdItems.items);
+
           toast({
             title: 'Login successful!',
             description: 'You have been logged in successfully.',
@@ -54,7 +67,8 @@ const LoginForm = () => {
             duration: 5000,
             isClosable: true,
           });
-          router.push('/dashboard');
+          
+          router.push('/');
         } else {
           setError(result.message);
           toast({

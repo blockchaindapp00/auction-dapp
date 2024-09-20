@@ -13,8 +13,8 @@ export type User = {
     email: string;
     username: string;
     public_address:string;
-    owned_items:Item[];
-    created_items:Item[];
+    owned_items?:Item[];
+    created_items?:Item[];
     joinedOn: string;
 }
 export type ItemOnBid = Item & {
@@ -27,6 +27,8 @@ interface SessionState {
     isAuthenticated: boolean;
     setUser: (user: User | null) => void;
     logout: () => void;
+    setCreatedItems: (items: Item[]) => void;
+    setOwnedItems: (items: Item[]) => void;
 }
 
 export const useSessionStore = create<SessionState>((set) => ({
@@ -38,7 +40,7 @@ export const useSessionStore = create<SessionState>((set) => ({
     set(
       produce((state: SessionState) => {
         state.user = user;
-        state.isAuthenticated = user !== null;
+        state.isAuthenticated = true;
       })
     ),
 
@@ -50,4 +52,22 @@ export const useSessionStore = create<SessionState>((set) => ({
         state.isAuthenticated = false;
       })
     ),
+
+  setCreatedItems: (items: Item[]) =>
+    set(
+      produce((state: SessionState) => {
+        if (state.user) {
+          state.user.created_items = items;
+        }
+      })
+    ),
+
+  setOwnedItems: (items: Item[]) =>
+    set(
+      produce((state: SessionState) => {
+        if (state.user) {
+          state.user.owned_items = items;
+        }
+      })
+    )
 }));

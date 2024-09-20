@@ -17,10 +17,11 @@ import {
 } from "@chakra-ui/react";
 import { CopyIcon } from "@chakra-ui/icons";
 import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
+import { useSessionStore } from "@/utils/zustand/sessionStore";
 
 const ProfileDashboard = () => {
   const router = useRouter(); // Initialize the router
-
+  const user = useSessionStore((state) => state.user);
   const walletAddress = "0x1234...abcd5678efgh"; // Replace with the actual wallet address
   const { hasCopied, onCopy } = useClipboard(walletAddress);
 
@@ -98,12 +99,12 @@ const ProfileDashboard = () => {
             </Flex>
 
             <Text fontSize="2xl" fontWeight="bold">
-              Yogesh
+              {user?.username || "Yogesh"}
             </Text>
 
             <Flex justify="center" align="center">
               <Text fontSize="sm" fontWeight="medium">
-                Wallet Address:
+                {user?.public_address || "0x1234...abcd5678efgh"}
               </Text>
               <Text
                 fontSize="sm"
@@ -137,7 +138,7 @@ const ProfileDashboard = () => {
             <Stack direction="row" justify="center" spacing={6}>
               <Button colorScheme="blue">Edit Profile</Button>
               <Button variant="outline" colorScheme="red">
-                Disconnect Wallet
+                Logout
               </Button>
             </Stack>
 
@@ -146,10 +147,10 @@ const ProfileDashboard = () => {
             {/* Additional Information */}
             <Box textAlign="left">
               <Text fontSize="sm" fontWeight="medium">
-                Email: yogesh@example.com
+                Email: {user?.email || "YpR0s@example.com"}
               </Text>
               <Text fontSize="sm" fontWeight="medium">
-                Member Since: September 2024
+                Member Since: {user?.joinedOn}
               </Text>
               <Text fontSize="sm" fontWeight="medium">
                 Account Status: <Badge colorScheme="green">Verified</Badge>

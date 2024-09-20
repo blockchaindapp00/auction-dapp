@@ -1,11 +1,31 @@
+'use client';
+import { useEffect, useState } from "react";
 import { Box, SimpleGrid, Heading } from "@chakra-ui/react";
 import AuctionCard from "@/components/Card";
 import Nav from "@/components/Nav";
 import BidModal from "@/components/BidModal";
+import { fetchItems,Item } from "./api";
+
+
 
 const Home: React.FC = () => {
-  const auctionCoordinator = "John Doe";
-  const auctionEndTime = "2024-09-30T18:00:00"; // Example ISO date string
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const loadItems = async () => {
+      try {
+        const data = await fetchItems(); // Fetch items from your API
+        setItems(data.items); // Set the fetched items
+        setLoading(false);
+      } catch (error) {
+        console.error("Failed to load auction items:", error);
+        setLoading(false);
+      }
+    };
+
+    loadItems();
+  }, []);
 
   return (
     <Box
@@ -19,22 +39,28 @@ const Home: React.FC = () => {
       <Nav />
 
       {/* Heading for Auctions */}
-      <Heading marginX={10} marginTop={10} fontWeight="extrabold">
+      <Heading fontSize={"22px"} marginX={10} marginTop={10} fontWeight="extrabold">
         Live Auctions
       </Heading>
 
       {/* Auction Cards Grid */}
-      <SimpleGrid columns={2} spacing={10} marginTop={5} marginX={10}>
-        <AuctionCard
-          title="Example Auction"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-          startPrice={20}
-          bid={40}
-          img="https://via.placeholder.com/600/92c952"
-          auctionCoordinator={auctionCoordinator}
-          auctionEndTime={auctionEndTime}
-        />
-        {/* Add more AuctionCard components as needed */}
+      <SimpleGrid columns={[1,null,4]} spacing={10} marginTop={5} marginX={10}>
+        {loading ? (
+          <Heading>Loading auctions...</Heading>
+        ) : (
+          items.map((item) => (
+            <AuctionCard
+               // Assuming each item has an _id property
+              title={item.title}
+              description={item.description}
+              startPrice={item.start_price}
+              bid={item.highest_bid}
+              img={item.image}
+              auctionCoordinator={item.posted_by} // You may need to adjust this to display user info
+              auctionEndTime={item.start_time_stamp}
+            />
+          ))
+        )}
       </SimpleGrid>
 
       {/* Modal for Bids */}

@@ -1,3 +1,4 @@
+'use client';
 import React from "react";
 import {
   Box,
@@ -5,34 +6,45 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  MenuGroup,
   MenuDivider,
   Button,
   Heading,
 } from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
+import { useSessionStore } from "@/utils/zustand/sessionStore";
 
 const Nav: React.FC = () => {
+  const router = useRouter();
+  const isAuthenticated = useSessionStore((state) => state.isAuthenticated);
+  const logout = useSessionStore((state) => state.logout);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');  // Redirect to home page after logout
+  };
+
   return (
     <Box
       display="flex"
       justifyContent="space-between"
       alignItems="center"
-      bg="black" // Dark black background
-      p={4} // Padding for spacing
-      boxShadow="md" // Optional: add shadow for better separation
-      w="98.5%" // Full-width
-      position="fixed" // Fixed position to stay at the top
-      top={0} // Aligns to the top
-      left={0} // Aligns to the left
-      zIndex={1000} // Ensure it stays on top of other content
-      mt={3} // Reduced margin at the top
-      mx={3} // Equal margin on left and right
-      borderRadius="lg" // Large border radius for curves on corners
+      bg="gray.900"
+      p={4}
+      boxShadow="md"
+      w="91%"
+      
+      position="fixed"
+      top={0}
+      left={0}
+      zIndex={1000}
+      mt={3}
+      mx={20}
+      borderRadius="lg"
     >
       <Heading
         bgGradient="linear(to-l, #7928CA, #FF0080)"
         bgClip="text"
-        fontSize="4xl"
+        fontSize="3xl"
         fontWeight="extrabold"
       >
         Auction DApp
@@ -42,35 +54,28 @@ const Nav: React.FC = () => {
           My Account
         </MenuButton>
         <MenuList
-          bg="gray.900" // Dark background for the menu list
-          borderColor="gray.700" // Border color for the menu list
-          borderRadius="lg" // Large border radius for curves on corners
+          bg="gray.900"
+          borderColor="gray.700"
+          borderRadius="lg"
         >
-          <MenuGroup title="Profile">
-            <MenuItem
-              _hover={{ bg: "gray.700" }} // Hover effect for menu items
-            >
-              My Account
+          {isAuthenticated ? (
+            <>
+              <MenuItem onClick={() => router.push("/profile")} _hover={{ bg: "gray.700" }}>
+                Profile
+              </MenuItem>
+              <MenuItem onClick={() => router.push("/new-item")} _hover={{ bg: "gray.700" }}>
+                Sell NFT
+              </MenuItem>
+              <MenuItem onClick={handleLogout} _hover={{ bg: "gray.700" }}>
+                Logout
+              </MenuItem>
+              <MenuDivider />
+            </>
+          ) : (
+            <MenuItem onClick={() => router.push("/auth/login")} _hover={{ bg: "gray.700" }}>
+              Log In
             </MenuItem>
-            <MenuItem
-              _hover={{ bg: "gray.700" }} // Hover effect for menu items
-            >
-              Payments
-            </MenuItem>
-          </MenuGroup>
-          <MenuDivider />
-          <MenuGroup title="Help">
-            <MenuItem
-              _hover={{ bg: "gray.700" }} // Hover effect for menu items
-            >
-              Docs
-            </MenuItem>
-            <MenuItem
-              _hover={{ bg: "gray.700" }} // Hover effect for menu items
-            >
-              FAQ
-            </MenuItem>
-          </MenuGroup>
+          )}
         </MenuList>
       </Menu>
     </Box>

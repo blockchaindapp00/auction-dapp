@@ -18,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 
 const BidModal = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+   );
   const [bidAmount, setBidAmount] = useState<number | ''>('');
   const initialRef = React.useRef(null);
   const finalRef = React.useRef(null);
@@ -63,7 +63,7 @@ const BidModal = () => {
       <Modal
         initialFocusRef={initialRef}
         finalFocusRef={finalRef}
-        isOpen={false}
+        isOpen={isOpen}
         onClose={onClose}
       >
         <ModalOverlay />

@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 interface IItem extends Document {
     title: string;
-    posted_by: mongoose.Schema.Types.ObjectId;
+    posted_by: string;
     start_price: number;
     highest_bid: number;
     description: string;
@@ -14,7 +14,7 @@ interface IItem extends Document {
 
 const ItemSchema: Schema = new Schema({
     title: { type: String, required: true },
-    posted_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    posted_by: { type: String,required: true },
     start_price: { type: Number, required: true },
     highest_bid: { type: Number, default: 0 },
     description: { type: String, required: true },

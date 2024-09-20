@@ -11,18 +11,31 @@ import {
   Alert,
   AlertIcon,
   AlertTitle,
+  useToast,
+  Spinner,
 } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
+import { addItem } from './api'; // Adjust path as necessary
+import { useSessionStore } from '@/utils/zustand/sessionStore';
+
 
 const AddBidItem = () => {
-  const [itemName, setItemName] = useState('');
+  const [title, setTitle] = useState('');
   const [startingBid, setStartingBid] = useState('');
-  const [bidEndDate, setBidEndDate] = useState('');
   const [description, setDescription] = useState('');
+  const [image, setImageUrl] = useState('');
+  const [bidEndDate, setBidEndDate] = useState('');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const toast = useToast();
+  const userId = useSessionStore(state => state.user?.username);
 
   // Simple validation
   const validateForm = () => {
-    if (!itemName || !startingBid || !bidEndDate || !description) {
+
+    if (!title || !startingBid || !description || !image || !bidEndDate) {
       setError('Please fill out all fields');
       return false;
     }
@@ -34,11 +47,45 @@ const AddBidItem = () => {
   };
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
       setError('');
-      console.log('Adding item:', { itemName, startingBid, bidEndDate, description });
+      setLoading(true);
+      
+
+      try {
+        await addItem({
+          title,
+          startingBid,
+          description,
+          image,
+          bidEndDate,
+          userId,
+        });
+        setSuccessMessage('Item added successfully');
+        toast({
+          title: 'Item added.',
+          description: 'Your item has been added successfully.',
+          status: 'success',
+          duration: 5000,
+          isClosable: true,
+        });
+        setTimeout(() => {
+          setLoading(false);
+          router.push('/items'); // Redirect to another page
+        }, 2000); // Redirect after 2 seconds
+      } catch (err: any) {
+        setError(err.message || 'Failed to add item');
+        toast({
+          title: 'Error.',
+          description: err.message || 'Failed to add item.',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+        setLoading(false);
+      }
     }
   };
 
@@ -58,7 +105,6 @@ const AddBidItem = () => {
         p={8}
         boxShadow="lg"
         borderRadius="md"
-        borderColor="white"
         borderWidth="1px"
         borderStyle="solid"
         bg="gray.900"
@@ -82,14 +128,22 @@ const AddBidItem = () => {
               </Alert>
             )}
 
-            {/* Item Name Field */}
+            {/* Success message */}
+            {successMessage && (
+              <Alert status="success">
+                <AlertIcon />
+                <AlertTitle>{successMessage}</AlertTitle>
+              </Alert>
+            )}
+
+            {/* Title Field */}
             <FormControl isRequired>
-              <FormLabel color="gray.200">Item Name</FormLabel>
+              <FormLabel color="gray.200">Title</FormLabel>
               <Input
                 type="text"
-                placeholder="Enter the item name"
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
+                placeholder="Enter the item title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 borderColor="gray.500"
                 _focus={{ borderColor: 'teal.300', boxShadow: '0 0 0 1px teal.300' }}
                 width="100%"
@@ -120,7 +174,7 @@ const AddBidItem = () => {
             <FormControl isRequired>
               <FormLabel color="gray.200">Bid End Date</FormLabel>
               <Input
-                type="date"
+                type="number"
                 placeholder="Enter bid end date"
                 value={bidEndDate}
                 onChange={(e) => setBidEndDate(e.target.value)}
@@ -150,8 +204,25 @@ const AddBidItem = () => {
               />
             </FormControl>
 
+            {/* Image URL Field */}
+            <FormControl isRequired>
+              <FormLabel color="gray.200">Image URL</FormLabel>
+              <Input
+                type="url"
+                placeholder="Enter the image URL"
+                value={image}
+                onChange={(e) => setImageUrl(e.target.value)}
+                borderColor="gray.500"
+                _focus={{ borderColor: 'teal.300', boxShadow: '0 0 0 1px teal.300' }}
+                width="100%"
+                padding={4}
+                borderRadius="md"
+                bg="gray.800"
+              />
+            </FormControl>
+
             {/* Submit Button */}
-            <Button type="submit" colorScheme="blue" size="lg" width="full">
+            <Button type="submit" colorScheme="blue" size="lg" width="full" isLoading={loading}>
               Add Item
             </Button>
           </Stack>

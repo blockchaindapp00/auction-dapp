@@ -11,6 +11,8 @@ interface RequestBody {
 interface UserResponse {
     username: string;
     email: string;
+    public_address: string;
+    registered_date: string;
 }
 
 export const POST = async (req: Request): Promise<Response> => {
@@ -52,6 +54,8 @@ export const POST = async (req: Request): Promise<Response> => {
         const userResponse: UserResponse = {
             username: user.username,
             email: user.email,
+            public_address: user.public_address,
+            registered_date: user.registered_date.toString(),
         };
 
         return new Response(
